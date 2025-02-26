@@ -1,0 +1,15 @@
+[package]
+    edition = "2021"
+    name    = "qnode-logproc"
+    version = "0.1.0"
+
+[dependencies]
+    anyhow       = "1.0"
+    chrono       = "*"
+    fieldx       = { version = "0.1.10", features = ["sync", "async", "send_guard"] }
+    fieldx_plus  = { version = "0.1.5", features = ["sync", "async", "send_guard"] }
+    once_cell    = "*"
+    regex        = "1.11"
+    strum        = "*"
+    strum_macros = "*"
+    tokio        = { version = "1.43", features = ["rt", "macros", "rt-multi-thread", "signal", "io-util", "io-std", "time"] }
