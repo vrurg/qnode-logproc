@@ -6,6 +6,7 @@
 [dependencies]
     anyhow       = "1.0"
     chrono       = "*"
+    console      = "*"
     fieldx       = { version = "0.1.10", features = ["sync", "async", "send_guard"] }
     fieldx_plus  = { version = "0.1.5", features = ["sync", "async", "send_guard"] }
     once_cell    = "*"

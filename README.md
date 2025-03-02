@@ -6,30 +6,37 @@
 
 # Disclaimer
 
-It does too little, only the basics were prepared. My mistake was to focus initially on buffering which is not
-really necessary, considering the data types used. Since buffer itself is just a list of smart pointers (`String`)
-it wouldn't over-consume memory. Worst case scenarios with processing delay of 1sec and a burst of 10k messages
-the buffer itself will only hold like ~40Kb itself. Strings allocated, on the other hand, are gonna stay around
-until the processing gets unstuck, thus making this memory totally required.
+This is a later version which I completed over a few spare hours I had lately. The version submitted for the test
+is available at the `final` tag (`git checkout final`).
 
 # Explanations
 
-I really havent got to the point of pattern weighting. So, nothing here.
+With Rust’s capabilities, there’s no need to adjust either the input buffer or the incoming queue buffer. The buffered
+read itself is fast enough (tested using `cat file | cargo run`). The processing queue is managed by Tokio’s `mpsc`
+channel, which gives us direct control. Additionally, to avoid losing any log entries, all pre-parsed packets must be
+retained, making it impossible to reduce memory usage unless the processing of the internal records buffer is
+sufficiently fast.
 
-The window management is handled by averaging the number of held records per current window size. If it gets too
-high or too low the window is either halved while it's > 15 seconds; or increased by 10sec steps.
+Because the provided log generation tool doesn’t produce log entries quickly enough, it’s challenging to test burst
+handling. However, measuring per-second rates or setting up a simple threshold detection is straightforward. Given the
+limited spare time, I decided not to focus on that aspect. Also, I had to intentionally omit tests.
 
-Burst handling isn't done either, but it would be based on the per_second_rate field of the `Stats` struct. There is
-not much to do left.
+Eventually, the project’s primary focus shifted slightly to the following requirements:
 
-Introducing a concurrency bug isn't an easy task with Rust design. The most common problem with Rust concurrency are
-dead-locks.
+1. Code quality
+2. Management of sliding windows
+3. Weighted rates
+4. Memory management
 
-Rendering was planned as a simple printing with help of the `console` crate. The least complex task. I just haven't
-got to have data ready for printing.
+I'm not completely satisfied with the code quality—time constraints prevented me from refactoring it as thoroughly as I
+would have liked. Improvements in encapsulation, delegation of responsibilities, and error management are still needed.
 
-Malformed messages are currently just printed out with `NO MATCH` prefix. Otherwise no processing.
+The other two requirements presented interesting challenges. In particular, weighted rates were previously implemented
+under a completely different set of requirements, so this change serves as a valuable exercise.
 
-# Conclusion
+For memory management, the focus is on ensuring timely cleanup and maintaining a dedicated index for incoming messages.
+Instead of handling strings directly, they are mapped to integer indices and, when necessary, mapped back to the
+original messages.
 
-This code is mostly a skeleton. I approximate ~1.5-2 hours extra for it to be completed.
+Overall, the tool's output is very close to the expected results, though fully testing its capabilities would require
+developing a custom log generator.
